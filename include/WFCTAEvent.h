@@ -154,7 +154,7 @@ class WFCTAEvent : public TSelector
 };
 
 //#if !defined(CINT)
-ClassImp(WFCTAEvent);
+//ClassImp(WFCTAEvent);
 //#endif
 
 #endif // WFCTAEVENT_H

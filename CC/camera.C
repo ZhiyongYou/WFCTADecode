@@ -69,6 +69,7 @@ void SC_Channel2SiPM(short F_DB, short mChannel, short *mSiPM)
     else {Channel_X = Channel_X;}
     Channel_Y = 32-Channel_Y;
 	*mSiPM = short(1023-(Channel_Y*32+Channel_X-1));
+	//printf("sipm:%d x:%.2lf y:%.2lf\n",*mSiPM,Channel_X,Channel_Y);
 }
 
 
