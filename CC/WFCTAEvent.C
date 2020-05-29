@@ -39,8 +39,12 @@ WFCTAEvent::WFCTAEvent():TSelector()
 	eSatL.reserve(MAXPMT);
 	BaseH.reserve(MAXPMT);
 	BaseL.reserve(MAXPMT);
+	BaseHRMS.reserve(MAXPMT);
+	BaseLRMS.reserve(MAXPMT);
 	LaserBaseH.reserve(MAXPMT);
 	LaserBaseL.reserve(MAXPMT);
+	LaserBaseHRMS.reserve(MAXPMT);
+	LaserBaseLRMS.reserve(MAXPMT);
 	AdcH.reserve(MAXPMT);
 	AdcL.reserve(MAXPMT);
 	LaserAdcH.reserve(MAXPMT);
@@ -72,8 +76,12 @@ WFCTAEvent::WFCTAEvent():TSelector()
 	eSatL.resize(MAXPMT);
 	BaseH.resize(MAXPMT);
 	BaseL.resize(MAXPMT);
+	BaseHRMS.resize(MAXPMT);
+	BaseLRMS.resize(MAXPMT);
 	LaserBaseH.resize(MAXPMT);
 	LaserBaseL.resize(MAXPMT);
+	LaserBaseHRMS.resize(MAXPMT);
+	LaserBaseLRMS.resize(MAXPMT);
 	AdcH.resize(MAXPMT);
 	AdcL.resize(MAXPMT);
 	LaserAdcH.resize(MAXPMT);
@@ -134,6 +142,8 @@ void WFCTAEvent::Init()
    eSatL.clear();
    BaseH.clear();
    BaseL.clear();
+   BaseHRMS.clear();
+   BaseLRMS.clear();
    AdcH.clear();
    AdcL.clear();
    SatH.clear();
@@ -186,8 +196,12 @@ void WFCTAEvent::EventInitial()
 	eSatL.clear();
 	BaseH.clear();
 	BaseL.clear();
+	BaseHRMS.clear();
+	BaseLRMS.clear();
 	LaserBaseH.clear();
 	LaserBaseL.clear();
+	LaserBaseHRMS.clear();
+	LaserBaseLRMS.clear();
 	AdcH.clear();
 	AdcL.clear();
 	LaserAdcH.clear();

@@ -134,7 +134,7 @@ int main(int argc, char**argv)
 			len = m_totalSize;
 			memcpy(buffertemp,bufferRaw,len);
 		}
-		//dumpPacket(buffertemp,len,16);
+		dumpPacket(buffertemp,len,16);
 
 		if(len>DAQ_EVT_ALL_HEAD)
 		{
@@ -227,6 +227,8 @@ int main(int argc, char**argv)
 							WFCTAMerge::Calc_Q_Base(isipm,merge_evts,0);
 							wfctaEvent->BaseH.push_back( WFCTAMerge::GetBaseH(isipm,merge_evts) );
 							wfctaEvent->BaseL.push_back( WFCTAMerge::GetBaseL(isipm,merge_evts) );
+							wfctaEvent->BaseHRMS.push_back( WFCTAMerge::GetBaseHRMS(isipm,merge_evts) );
+							wfctaEvent->BaseLRMS.push_back( WFCTAMerge::GetBaseLRMS(isipm,merge_evts) );
 							adch = WFCTAMerge::GetAdcH(isipm,merge_evts);
 							adcl = WFCTAMerge::GetAdcL(isipm,merge_evts);
 							wfctaEvent->AdcH.push_back( adch );
@@ -238,6 +240,8 @@ int main(int argc, char**argv)
 							WFCTAMerge::Calc_Q_Base(isipm,merge_evts,1);
 							wfctaEvent->LaserBaseH.push_back( WFCTAMerge::GetLaserBaseH(isipm,merge_evts) );
 							wfctaEvent->LaserBaseL.push_back( WFCTAMerge::GetLaserBaseL(isipm,merge_evts) );
+							wfctaEvent->LaserBaseHRMS.push_back( WFCTAMerge::GetLaserBaseHRMS(isipm,merge_evts) );
+							wfctaEvent->LaserBaseLRMS.push_back( WFCTAMerge::GetLaserBaseLRMS(isipm,merge_evts) );
 							wfctaEvent->LaserAdcH.push_back( WFCTAMerge::GetLaserAdcH(isipm,merge_evts) );
 							wfctaEvent->LaserAdcL.push_back( WFCTAMerge::GetLaserAdcL(isipm,merge_evts) );
 						}
@@ -337,6 +341,8 @@ int main(int argc, char**argv)
 					WFCTAMerge::Calc_Q_Base(isipm,merge_evts,0);
 					wfctaEvent->BaseH.push_back( WFCTAMerge::GetBaseH(isipm,merge_evts) );
 					wfctaEvent->BaseL.push_back( WFCTAMerge::GetBaseL(isipm,merge_evts) );
+					wfctaEvent->BaseHRMS.push_back( WFCTAMerge::GetBaseHRMS(isipm,merge_evts) );
+					wfctaEvent->BaseLRMS.push_back( WFCTAMerge::GetBaseLRMS(isipm,merge_evts) );
 					adch = WFCTAMerge::GetAdcH(isipm,merge_evts);
 					adcl = WFCTAMerge::GetAdcL(isipm,merge_evts);
 					wfctaEvent->AdcH.push_back( adch );
@@ -348,6 +354,8 @@ int main(int argc, char**argv)
 					WFCTAMerge::Calc_Q_Base(isipm,merge_evts,1);
 					wfctaEvent->LaserBaseH.push_back( WFCTAMerge::GetLaserBaseH(isipm,merge_evts) );
 					wfctaEvent->LaserBaseL.push_back( WFCTAMerge::GetLaserBaseL(isipm,merge_evts) );
+					wfctaEvent->LaserBaseHRMS.push_back( WFCTAMerge::GetLaserBaseHRMS(isipm,merge_evts) );
+					wfctaEvent->LaserBaseLRMS.push_back( WFCTAMerge::GetLaserBaseLRMS(isipm,merge_evts) );
 					wfctaEvent->LaserAdcH.push_back( WFCTAMerge::GetLaserAdcH(isipm,merge_evts) );
 					wfctaEvent->LaserAdcL.push_back( WFCTAMerge::GetLaserAdcL(isipm,merge_evts) );
 				}

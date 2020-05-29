@@ -63,8 +63,12 @@ class WFCTAEvent : public TSelector
 		vector<bool> eSatL;
 		vector<float> BaseH;
 		vector<float> BaseL;
+		vector<float> BaseHRMS;
+		vector<float> BaseLRMS;
 		vector<float> LaserBaseH;
 		vector<float> LaserBaseL;
+		vector<float> LaserBaseHRMS;
+		vector<float> LaserBaseLRMS;
 		vector<float> AdcH;
 		vector<float> AdcL;
 		vector<float> LaserAdcH;
@@ -154,7 +158,7 @@ class WFCTAEvent : public TSelector
 };
 
 //#if !defined(CINT)
-//ClassImp(WFCTAEvent);
+ClassImp(WFCTAEvent);
 //#endif
 
 #endif // WFCTAEVENT_H
