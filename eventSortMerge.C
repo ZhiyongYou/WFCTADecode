@@ -10,13 +10,11 @@
 #include "include/WFCTAEvent.h"
 #include "include/WFCTAMerge.h"
 #include "include/WFCTADecode.h"
-//#include "include/Header.h"
 #include <TFile.h>
 #include <TTree.h>
-#include <zlib.h>
 
-#define BUF_LEN 200000000
-#define STATUS_BUF_LEN 200000000
+#define BUF_LEN 2000000
+#define STATUS_BUF_LEN 2000000
 
 using namespace std;
 
@@ -30,7 +28,6 @@ int main(int argc, char**argv)
 //int eventTEST=atoi(argv[3]);
 	FILE *fp;
 	uint8_t *buf = NULL;// = new uint8_t[BUF_LEN];
-	uint8_t *uncomp_buf = new uint8_t[BUF_LEN];
 	int32_t slicelength = 2000000;
 	size_t size_of_read;
 	short ITEL;
@@ -43,9 +40,8 @@ int main(int argc, char**argv)
 
 	char Name1[300]="root://eos01.ihep.ac.cn/";
 	char Name2[300];
-	//strcpy(Name2,Name1);
-	//strcat(Name2,argv[2]);
-	strcpy(Name2,argv[2]);
+	strcpy(Name2,Name1);
+	strcat(Name2,argv[2]);
 	TFile *rootfile = TFile::Open(Name2,"recreate");
 	//TFile *rootfile = new TFile(argv[2],"recreate");
 	WFCTAEvent *wfctaEvent = new WFCTAEvent();
@@ -70,132 +66,49 @@ int main(int argc, char**argv)
 	while(true)
 	{
 		buf = new uint8_t[40];
-		size_of_read = fread((void *)buf,1,40,fp);
+		size_of_read = fread((uint8_t *)buf,1,40,fp);
 		if(size_of_read==0){break;}
-		if(wfctaDecode->ZipDataFragment(buf))
+
+		if(wfctaDecode->FEEDataFragment(buf))
 		{
 			FEEDataHead = wfctaDecode->feeDataHead();
-			slicelength = wfctaDecode->z_sliceLength(buf,FEEDataHead);
+			slicelength = wfctaDecode->sliceLength(buf,FEEDataHead); 
+			ITEL = wfctaDecode->Telid(buf,FEEDataHead);
 			fseek(fp,-size_of_read+FEEDataHead,1);
 			FEEPos = ftell(fp);
-			printf("FEEDataHead: %d %d %d\n",FEEDataHead,slicelength,FEEPos);
 			delete[] buf;
 			buf = new uint8_t[slicelength];
-			size_of_read = fread((void *)buf,1,slicelength,fp);
-			unsigned long len = BUF_LEN;
-			if(uncompress(uncomp_buf, &len, buf+20, slicelength-20) != Z_OK)
+			size_of_read = fread((uint8_t *)buf,1,slicelength,fp);
+			packStart = 0;
+			while(1)
 			{
-				printf("uncompress failed!\n");
-				return 1;
-			}
-
-			dumpPacket(uncomp_buf,len,16);
-			printf("uncomp_len:%llu\n",len);
-			printf("--------------------------------------------\n");
-			unsigned long read_head = 0;
-			unsigned long read_tail = 20;
-			while(true)
-			{
-				assert(uncomp_buf);
-				printf("uncomp_len:%llu\n",len);
-				printf("--------------------------------------------\n");
-				read_tail = read_head+40;
-				if(read_tail>len){break;}
-
-				if(wfctaDecode->FEEDataFragment(uncomp_buf+read_head))
+				int bigpackcheck = wfctaDecode->bigPackCheck(buf,int(size_of_read),packStart);
+				if(bigpackcheck == 1)
 				{
-					FEEDataHead = wfctaDecode->feeDataHead();
-					slicelength = wfctaDecode->sliceLength(buf,FEEDataHead); 
-					ITEL = wfctaDecode->Telid(buf,FEEDataHead);
-					fseek(fp,-size_of_read+FEEDataHead,1);
-					FEEPos = ftell(fp);
-					delete[] buf;
-					buf = new uint8_t[slicelength];
-					size_of_read = fread((void *)uncomp_buf,1,slicelength,fp);
-					packStart = 0;
-					while(1)
-					{
-						int bigpackcheck = wfctaDecode->bigPackCheck(uncomp_buf,int(size_of_read),packStart);
-						if(bigpackcheck == 1)
-						{
-							//get info rabbit_time and position in file//
-							rb_Time->push_back( wfctaDecode->RabbitTime(uncomp_buf) );
-							rb_time->push_back( wfctaDecode->Rabbittime(uncomp_buf) );
-							pack_pos->push_back( FEEPos + packStart );
-							pack_len->push_back( wfctaDecode->bigpackLen() );
-							packStart = wfctaDecode->PackSize();
-						}
-						else if(bigpackcheck == 2)
-						{
-							printf("bigpack is wrong\n");
-							packStart = wfctaDecode->PackSize();
-						}
-						else
-						{
-							break;
-						}
-					} 
-					delete[] uncomp_buf;
+					//get info rabbit_time and position in file//
+					rb_Time->push_back( wfctaDecode->RabbitTime(buf) );
+					rb_time->push_back( wfctaDecode->Rabbittime(buf) );
+					pack_pos->push_back( FEEPos + packStart );
+					pack_len->push_back( wfctaDecode->bigpackLen() );
+					packStart = wfctaDecode->PackSize();
+				}
+				else if(bigpackcheck == 2)
+				{
+					printf("bigpack is wrong\n");
+					packStart = wfctaDecode->PackSize();
 				}
 				else
 				{
-					read_head += 20;
+					break;
 				}
-			}
+			} 
+			delete[] buf;
 		}
 		else
 		{
 			delete[] buf;
 			fseek(fp,-size_of_read+20,1);
 		}
-	}
-	/*
-	   while(true)
-	   {
-	   buf = new uint8_t[40];
-	   size_of_read = fread((void *)buf,1,40,fp);
-	   if(size_of_read==0){break;}
-
-	   if(wfctaDecode->FEEDataFragment(buf))
-	   {
-	   FEEDataHead = wfctaDecode->feeDataHead();
-	   slicelength = wfctaDecode->sliceLength(buf,FEEDataHead); 
-	   ITEL = wfctaDecode->Telid(buf,FEEDataHead);
-	   fseek(fp,-size_of_read+FEEDataHead,1);
-	   FEEPos = ftell(fp);
-	   delete[] buf;
-	   buf = new uint8_t[slicelength];
-	   size_of_read = fread((void *)buf,1,slicelength,fp);
-	   packStart = 0;
-	   while(1)
-	   {
-	   int bigpackcheck = wfctaDecode->bigPackCheck(buf,int(size_of_read),packStart);
-	   if(bigpackcheck == 1)
-	   {
-	//get info rabbit_time and position in file//
-	rb_Time->push_back( wfctaDecode->RabbitTime(buf) );
-	rb_time->push_back( wfctaDecode->Rabbittime(buf) );
-	pack_pos->push_back( FEEPos + packStart );
-	pack_len->push_back( wfctaDecode->bigpackLen() );
-	packStart = wfctaDecode->PackSize();
-	}
-	else if(bigpackcheck == 2)
-	{
-	printf("bigpack is wrong\n");
-	packStart = wfctaDecode->PackSize();
-	}
-	else
-	{
-	break;
-	}
-	} 
-	delete[] buf;
-	}
-	else
-	{
-	delete[] buf;
-	fseek(fp,-size_of_read+20,1);
-	}
 	}
 	fclose(fp);
 
@@ -205,7 +118,7 @@ int main(int argc, char**argv)
 	map<long, long>::iterator time_position_iter;
 	map<long, long>::iterator next_time_position_iter;
 	for(int ii=0;ii<rb_Time->size();ii++){
-	time_position.insert( pair<long,long>( long((rb_Time->at(ii)-rb_TimeMin)*1000000000+rb_time->at(ii)*20), pack_pos->at(ii) ) );
+		time_position.insert( pair<long,long>( long((rb_Time->at(ii)-rb_TimeMin)*1000000000+rb_time->at(ii)*20), pack_pos->at(ii) ) );
 	}
 
 	float adch;
@@ -221,12 +134,26 @@ int main(int argc, char**argv)
 	slicelength = 2000000;
 	fp = fopen(argv[1],"rb");
 	next_time_position_iter=time_position.begin();
-	next_time_position_iter++;
+	//next_time_position_iter++;
+	int lastevent=0;
+	int allevents=time_position.size();
+	int thisevents=0;
 	for(time_position_iter=time_position.begin(); time_position_iter!=time_position.end(); time_position_iter++)
 	{
+		thisevents++;
+		if(next_time_position_iter!=time_position.end())
+		{
+			next_time_position_iter++;
+		}
+		if(thisevents==allevents)
+		{
+			printf("last event\n");
+			lastevent=1;
+		}
+
 		fseek(fp,time_position_iter->second,0);
 		buf = new uint8_t[slicelength];
-		fread((void *)buf,1,slicelength,fp);
+		fread((uint8_t *)buf,1,slicelength,fp);
 
 		//dumpPacket(buf,36,16);
 		merge_ev.EventInitial();
@@ -262,8 +189,9 @@ int main(int argc, char**argv)
 		deltaTime = next_time_position_iter->first - time_position_iter->first;
 		//printf("TimeNext:%lld    TimeThis:%lld    deltaTime:%lld\n",next_time_position_iter->first,time_position_iter->first,deltaTime);
 
-		if(deltaTime>1600)
+		if(deltaTime>1600 || 1==lastevent)
 		{
+			//printf("bigpackCheck:%d eEvent:%lld lastevent:%d\n\n",wfctaDecode->PackCheck(),merge_ev.eEvent,lastevent);
 			wfctaEvent->iTel = ITEL;
 			wfctaEvent->merge_size = merge_evs.size();
 			nevent[ITEL]++;
@@ -304,6 +232,8 @@ int main(int argc, char**argv)
 				WFCTAMerge::Calc_Q_Base(isipm,merge_evs,0);
 				wfctaEvent->BaseH.push_back( WFCTAMerge::GetBaseH(isipm,merge_evs) );
 				wfctaEvent->BaseL.push_back( WFCTAMerge::GetBaseL(isipm,merge_evs) );
+				wfctaEvent->BaseHRMS.push_back( WFCTAMerge::GetBaseHRMS(isipm,merge_evs) );
+				wfctaEvent->BaseLRMS.push_back( WFCTAMerge::GetBaseLRMS(isipm,merge_evs) );
 				adch = WFCTAMerge::GetAdcH(isipm,merge_evs);
 				adcl = WFCTAMerge::GetAdcL(isipm,merge_evs);
 				wfctaEvent->AdcH.push_back( adch );
@@ -315,6 +245,8 @@ int main(int argc, char**argv)
 				WFCTAMerge::Calc_Q_Base(isipm,merge_evs,1);
 				wfctaEvent->LaserBaseH.push_back( WFCTAMerge::GetLaserBaseH(isipm,merge_evs) );
 				wfctaEvent->LaserBaseL.push_back( WFCTAMerge::GetLaserBaseL(isipm,merge_evs) );
+				wfctaEvent->LaserBaseHRMS.push_back( WFCTAMerge::GetLaserBaseHRMS(isipm,merge_evs) );
+				wfctaEvent->LaserBaseLRMS.push_back( WFCTAMerge::GetLaserBaseLRMS(isipm,merge_evs) );
 				wfctaEvent->LaserAdcH.push_back( WFCTAMerge::GetLaserAdcH(isipm,merge_evs) );
 				wfctaEvent->LaserAdcL.push_back( WFCTAMerge::GetLaserAdcL(isipm,merge_evs) );
 				//if(isipm==1){
@@ -328,15 +260,12 @@ int main(int argc, char**argv)
 		}
 
 		delete[] buf;
-		if(next_time_position_iter!=time_position.end())
-		{
-			next_time_position_iter++;
-		}
 	} 
-	*/
-		fclose(fp);
+	fclose(fp);
 	/******************************************************************************/
 	rootfile->Write();
 	rootfile->Close();
+
+	printf("decode finished\n");
 
 }

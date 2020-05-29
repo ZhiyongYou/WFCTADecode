@@ -17,6 +17,10 @@ float WFCTAMerge::m_Basehigh2=0;
 float WFCTAMerge::m_Baselow2=0;
 float WFCTAMerge::m_Adchigh=0;
 float WFCTAMerge::m_Adclow=0;
+int WFCTAMerge::wave_calc_len=0;
+int WFCTAMerge::base_calc_len=0;
+int WFCTAMerge::wave_calc_len_low=0;
+int WFCTAMerge::base_calc_len_low=0;
 vector<int> WFCTAMerge::merged_pulsehigh(0,0);
 vector<int> WFCTAMerge::merged_pulselow(0,0);
 
@@ -290,12 +294,20 @@ float WFCTAMerge::GetBaseL(int isipm, vector<WFCTAMerge> &evs)
 float WFCTAMerge::GetBaseHRMS(int isipm, vector<WFCTAMerge> &evs)
 {
 	//WFCTAMerge::Calc_Q_Base(isipm,evs,laserCalc);
-	return sqrt(m_Basehigh2 - pow(m_Basehigh*4,2));
+	float M_Basehigh2 = m_Basehigh2*base_calc_len;
+	float M_Basehigh = pow(m_Basehigh*4,2)*base_calc_len;
+	//printf("ooooout: %f %f %f %f %d\n",M_Basehigh2,M_Basehigh,m_Basehigh2,m_Basehigh,base_calc_len);
+	return sqrt((M_Basehigh2 - M_Basehigh)/(base_calc_len-1));
 }
 float WFCTAMerge::GetBaseLRMS(int isipm, vector<WFCTAMerge> &evs)
 {
 	//WFCTAMerge::Calc_Q_Base(isipm,evs,laserCalc);
-	return sqrt(m_Baselow2 - pow(m_Baselow*4,2));
+	float M_Baselow2 = m_Baselow2*base_calc_len_low;
+	float M_Baselow = pow(m_Baselow*4,2)*base_calc_len_low;
+	return sqrt((M_Baselow2 - M_Baselow)/(base_calc_len_low-1));
+	//float M_Baselow2 = m_Baselow2*base_calc_len_low/(base_calc_len_low-1);
+	//float M_Baselow = m_Baselow*4*base_calc_len_low/(base_calc_len_low-1);
+	//return sqrt(M_Baselow2 - pow(M_Baselow,2));
 }
 float WFCTAMerge::GetAdcH(int isipm, vector<WFCTAMerge> &evs)
 {
@@ -321,12 +333,23 @@ float WFCTAMerge::GetLaserBaseL(int isipm, vector<WFCTAMerge> &evs)
 float WFCTAMerge::GetLaserBaseHRMS(int isipm, vector<WFCTAMerge> &evs)
 {
 	//WFCTAMerge::Calc_Q_Base(isipm,evs,laserCalc);
-	return sqrt(m_Basehigh2 - pow(m_Basehigh*4,2));//m_Basehigh;
+	float M_Basehigh2 = m_Basehigh2*base_calc_len;
+	float M_Basehigh = pow(m_Basehigh*4,2)*base_calc_len;
+	//printf("ooooout: %f %f %f %f %d\n",M_Basehigh2,M_Basehigh,m_Basehigh2,m_Basehigh,base_calc_len);
+	return sqrt((M_Basehigh2 - M_Basehigh)/(base_calc_len-1));
+	//float M_Basehigh2 = m_Basehigh2*base_calc_len/(base_calc_len-1);
+	//float M_Basehigh = m_Basehigh*4*base_calc_len/(base_calc_len-1);
+	//return sqrt(m_Basehigh2 - pow(m_Basehigh,2));//m_Basehigh;
 }
 float WFCTAMerge::GetLaserBaseLRMS(int isipm, vector<WFCTAMerge> &evs)
 {
 	//WFCTAMerge::Calc_Q_Base(isipm,evs,laserCalc);
-	return sqrt(m_Baselow2 - pow(m_Baselow*4,2));//m_Baselow;
+	float M_Baselow2 = m_Baselow2*base_calc_len_low;
+	float M_Baselow = pow(m_Baselow*4,2)*base_calc_len_low;
+	return sqrt((M_Baselow2 - M_Baselow)/(base_calc_len_low-1));
+	//float M_Baselow2 = m_Baselow2*base_calc_len_low/(base_calc_len_low-1);
+	//float M_Baselow = m_Baselow*4*base_calc_len_low/(base_calc_len_low-1);
+	//return sqrt(m_Baselow2 - pow(m_Baselow,2));//m_Baselow;
 }
 float WFCTAMerge::GetLaserAdcH(int isipm, vector<WFCTAMerge> &evs)
 {
@@ -388,29 +411,29 @@ void WFCTAMerge::Calc_Q_Base(int isipm, vector<WFCTAMerge> &evs, int laserCalc)
 		//}
 
 		//calc low gain cosmic ray adc and base
-		base_calc_len=0;
-		wave_calc_len=0;
+		base_calc_len_low=0;
+		wave_calc_len_low=0;
 		if(peakPosL>0)	{	waveStart = peakPosL-1;}
 		else			{	waveStart = 0;}
 		if(peakPosL<wave_len-2)	{	waveEnd = peakPosL+2;}
 		else					{	waveEnd = wave_len-1;}
 		for(int i=waveStart;i<=waveEnd;i++){
 			m_Adclow += merged_pulselow.at(i);
-			wave_calc_len++;
+			wave_calc_len_low++;
 		}
 		for(int i=0;i<waveStart-2;i++){
 			m_Baselow += merged_pulselow.at(i);
 			m_Baselow2 += pow(merged_pulselow.at(i),2);
-			base_calc_len++;
+			base_calc_len_low++;
 		}
 		for(int i=waveEnd+3;i<wave_len;i++){
 			m_Baselow += merged_pulselow.at(i);
 			m_Baselow2 += pow(merged_pulselow.at(i),2);
-			base_calc_len++;
+			base_calc_len_low++;
 		}
-		m_Baselow = m_Baselow/(4*base_calc_len);
-		m_Baselow2 = m_Baselow2/(base_calc_len);
-		m_Adclow -= m_Baselow*4*wave_calc_len;
+		m_Baselow = m_Baselow/(4*base_calc_len_low);
+		m_Baselow2 = m_Baselow2/(base_calc_len_low);
+		m_Adclow -= m_Baselow*4*wave_calc_len_low;
 	}
 	else
 	{
@@ -492,21 +515,21 @@ void WFCTAMerge::Calc_Q_Base(int isipm, vector<WFCTAMerge> &evs, int laserCalc)
 
 		int ipulseL;
 		//calc low gain laser adc and base
-		base_calc_len=0;
-		wave_calc_len=0;
+		base_calc_len_low=0;
+		wave_calc_len_low=0;
 		ipulseL = peakPosL;
 		m_Adclow += merged_pulselow.at(ipulseL);
-		wave_calc_len++;
+		wave_calc_len_low++;
 		ipulseL -= 1;
 		while(1){
 			if(ipulseL<0){break;}
 			m_Adclow += merged_pulselow.at(ipulseL);
-			wave_calc_len++;
+			wave_calc_len_low++;
 			ipulseL -= 1;
 			if(ipulseL<=0 || merged_pulselow.at(ipulseL)<preBaseL+9){
 				if(ipulseL<0){break;}
 				m_Adclow += merged_pulselow.at(ipulseL);
-				wave_calc_len++;
+				wave_calc_len_low++;
 				break;
 			}
 		}
@@ -515,23 +538,23 @@ void WFCTAMerge::Calc_Q_Base(int isipm, vector<WFCTAMerge> &evs, int laserCalc)
 		for(int i=0;i<waveStart-2;i++){
 			m_Baselow += merged_pulselow.at(i);
 			m_Baselow2 += pow(merged_pulselow.at(i),2);
-			base_calc_len++;
+			base_calc_len_low++;
 		}
 		ipulseL = peakPosL+1;
 		if(ipulseL<wave_len){
 			m_Adclow += merged_pulselow.at(ipulseL);
-			wave_calc_len++;
+			wave_calc_len_low++;
 			ipulseL += 1;
 		}
 		while(1){
 			if(ipulseL>wave_len-1){break;}
 			m_Adclow += merged_pulselow.at(ipulseL);
-			wave_calc_len++;
+			wave_calc_len_low++;
 			ipulseL += 1;
 			if(ipulseL>=wave_len-1 || merged_pulselow.at(ipulseL)<preBaseL+9){
 				if(ipulseL>wave_len-1){break;}
 				m_Adclow += merged_pulselow.at(ipulseL);
-				wave_calc_len++;
+				wave_calc_len_low++;
 				break;
 			}
 		}
@@ -540,11 +563,11 @@ void WFCTAMerge::Calc_Q_Base(int isipm, vector<WFCTAMerge> &evs, int laserCalc)
 		for(int i=waveEnd+3;i<wave_len;i++){
 			m_Baselow += merged_pulselow.at(i);
 			m_Baselow2 += pow(merged_pulselow.at(i),2);
-			base_calc_len++;
+			base_calc_len_low++;
 		}
-		m_Baselow = m_Baselow/(4*base_calc_len);
-		m_Baselow2 = m_Baselow2/(base_calc_len);
-		m_Adclow -= m_Baselow*4*wave_calc_len;
+		m_Baselow = m_Baselow/(4*base_calc_len_low);
+		m_Baselow2 = m_Baselow2/(base_calc_len_low);
+		m_Adclow -= m_Baselow*4*wave_calc_len_low;
 	}
 }
 

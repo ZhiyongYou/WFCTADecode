@@ -20,14 +20,16 @@ class WFCTAMerge
 		static float m_Baselow2;
 		static float m_Adchigh;
 		static float m_Adclow;
+		static int wave_calc_len;
+		static int base_calc_len;
+		static int wave_calc_len_low;
+		static int base_calc_len_low;
 		static std::vector<int> merged_pulsehigh;
 		static std::vector<int> merged_pulselow;
 
 		static void FindPeak(int isipm, std::vector<WFCTAMerge> &evs);
 		static void WaveForm_Merge(int isipm, std::vector<WFCTAMerge> &evs);
 	public:
-		int wave_calc_len;
-		int base_calc_len;
 		int big_pack_lenth;
 		long eEvent;
 		long rabbitTime;

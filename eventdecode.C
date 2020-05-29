@@ -134,7 +134,7 @@ int main(int argc, char**argv)
 			len = m_totalSize;
 			memcpy(buffertemp,bufferRaw,len);
 		}
-		dumpPacket(buffertemp,len,16);
+		//dumpPacket(buffertemp,len,16);
 
 		if(len>DAQ_EVT_ALL_HEAD)
 		{
