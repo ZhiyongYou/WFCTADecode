@@ -85,6 +85,8 @@ class WFCTAMerge
 		static float GetLaserAdcL(int isipm, std::vector<WFCTAMerge> &evs);
 		static int eSatH_Merge(int isipm, std::vector<WFCTAMerge> &evs);
 		static int eSatL_Merge(int isipm, std::vector<WFCTAMerge> &evs);
+		//static int GetWaveForm(short isipm, int* pulseh, int* pulsel, std::vector<WFCTAMerge> &evs);
+		static int GetWaveForm(short isipm, std::vector<int>& ipulse, std::vector<int>& pulseh, std::vector<int>& pulsel, std::vector<WFCTAMerge> &evs);
 
 		static bool IsData_Merge(int isipm, std::vector<WFCTAMerge> &evs);
 

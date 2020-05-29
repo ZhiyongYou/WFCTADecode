@@ -26,8 +26,10 @@ SOURCES  += $(SRCDIR)/LHChain.C
 #SOURCES  += $(SRCDIR)/Header.C
 SOURCES  += event.C
 SOURCES  += eventdecode.C
+SOURCES  += eventdecodeWave.C
 SOURCES  += eventSort.C
 SOURCES  += eventSortMerge.C
+SOURCES  += eventSortMergeWave.C
 SOURCES  += eventYMJ.C
 SOURCES  += status.C
 SOURCES  += statusdecode.C
@@ -54,18 +56,24 @@ LDFLAGS  := `root-config --libs`
 LDFLAGS  += -lz
 # -lRGL -lEve -lGeom -lMinuit -lTMVA -lXMLIO -lMLP -lTreePlayer -lXrdClient -lGpad -lNet -lHist -lHistPainter -lGraf -lMatrix -lRooFit
 
-all:event.exe eventdecode.exe eventSort.exe eventSortMerge.exe eventYMJ.exe status.exe statusdecode.exe read.exe $(LIBDIR)/lib.so
+all:event.exe eventdecode.exe eventdecodeWave.exe eventSort.exe eventSortMerge.exe eventSortMergeWave.exe eventYMJ.exe status.exe statusdecode.exe read.exe $(LIBDIR)/lib.so
 
 event.exe: $(OBJDIR)/event.o $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 eventdecode.exe: $(OBJDIR)/eventdecode.o $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+eventdecodeWave.exe: $(OBJDIR)/eventdecodeWave.o $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 	
 eventSort.exe: $(OBJDIR)/eventSort.o $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 eventSortMerge.exe: $(OBJDIR)/eventSortMerge.o $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+eventSortMergeWave.exe: $(OBJDIR)/eventSortMergeWave.o $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 eventYMJ.exe: $(OBJDIR)/eventYMJ.o $(OBJS)
@@ -93,11 +101,19 @@ $(OBJDIR)/eventdecode.o: eventdecode.C
 	mkdir -p $(OBJDIR)
 	$(CXX) $(CXXFLAGS) $(DEFINES) -c $^ -o $@
 
+$(OBJDIR)/eventdecodeWave.o: eventdecodeWave.C
+	mkdir -p $(OBJDIR)
+	$(CXX) $(CXXFLAGS) $(DEFINES) -c $^ -o $@
+
 $(OBJDIR)/eventSort.o: eventSort.C
 	mkdir -p $(OBJDIR)
 	$(CXX) $(CXXFLAGS) $(DEFINES) -c $^ -o $@
 
 $(OBJDIR)/eventSortMerge.o: eventSortMerge.C
+	mkdir -p $(OBJDIR)
+	$(CXX) $(CXXFLAGS) $(DEFINES) -c $^ -o $@
+
+$(OBJDIR)/eventSortMergeWave.o: eventSortMergeWave.C
 	mkdir -p $(OBJDIR)
 	$(CXX) $(CXXFLAGS) $(DEFINES) -c $^ -o $@
 

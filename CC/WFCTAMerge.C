@@ -362,6 +362,22 @@ float WFCTAMerge::GetLaserAdcL(int isipm, vector<WFCTAMerge> &evs)
 	return m_Adclow;
 }
 
+//int WFCTAMerge::GetWaveForm(short isipm, int* pulseh, int* pulsel, std::vector<WFCTAMerge> &evs)
+int WFCTAMerge::GetWaveForm(short isipm, std::vector<int>& ipulse, std::vector<int>& pulseh, std::vector<int>& pulsel, std::vector<WFCTAMerge> &evs)
+{
+	WFCTAMerge::WaveForm_Merge(isipm,evs);
+	int nPulse = merged_pulsehigh.size();
+	for(int i=0;i<nPulse;i++)
+	{
+		ipulse.push_back(i+1);
+		pulseh.push_back(merged_pulsehigh.at(i));
+		pulsel.push_back(merged_pulselow.at(i));
+		//*(pulseh+isipm*1400+i) = merged_pulsehigh.at(i);
+		//*(pulsel+isipm*1400+i) = merged_pulselow.at(i);
+	}
+	return nPulse;
+}
+
 void WFCTAMerge::Calc_Q_Base(int isipm, vector<WFCTAMerge> &evs, int laserCalc)
 {
 	int waveStart,waveEnd;
